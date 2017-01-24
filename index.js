@@ -6,7 +6,7 @@ var socket = require('socket.io-client')('http://glenndierckx.be/');
 
 socket.on("new-bg", function (data) {
   var date = new Date(data.date);
-  console.log("New bg img! " + date);
+  console.log("New background img! " + date);
   var writeStream = fs.createWriteStream("file.jpg");
   writeStream.on('finish', function () {
     wallpaper.set("file.jpg");
