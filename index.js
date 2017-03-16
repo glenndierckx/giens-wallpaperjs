@@ -1,6 +1,7 @@
 const wallpaper = require('wallpaper');
 var http = require('http');
 var fs = require('fs');
+var glob = require('glob');
 var request = require('request');
 var socket = require('socket.io-client')('http://glenndierckx.be/');
 
@@ -14,10 +15,23 @@ socket.on("new-bg", function (data) {
 
   var date = new Date(year, month, day, hour, minutes, 0, 0);
   console.log("New background img! " + date);
-  var writeStream = fs.createWriteStream("file.jpg");
+  var filename = "temp_" + date.getTime() + ".jpg";
+  var writeStream = fs.createWriteStream(filename);
   writeStream.on('finish', function () {
-    wallpaper.set("file.jpg");
+    wallpaper.set(filename);
     console.log("done");
+    glob("temp_*.jpg", function (er, files) {
+      // files is an array of filenames.
+      // If the `nonull` option is set, and nothing
+      // was found, then files is ["**/*.js"]
+      // er is an error object or null.
+      files.forEach(x => {
+        if(x !== filename)
+        {
+          fs.unlink(x);
+        }
+      });
+    })
   });
   var imgurl = "http://glenndierckx.be/dynbg/" + date.getTime() + ".jpg";
   request(imgurl).pipe(writeStream);
